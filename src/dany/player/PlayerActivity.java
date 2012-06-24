@@ -28,16 +28,7 @@ public class PlayerActivity extends Activity implements OnClickListener {
 	
 	Animation alphaAnimation;
 	
-	private Handler handler = new Handler();
 
-	private Runnable runnable = new Runnable() {
-		public void run() {
-			tv_loadProgress.setText(mService.getLoadProgress()+"");
-			tv_currentPosition.setText(mService.getCurrentPosition()+"");
-			handler.postDelayed(this, 1000);
-		}
-
-	};
 	
 	
 	@Override
@@ -52,7 +43,6 @@ public class PlayerActivity extends Activity implements OnClickListener {
         tv_loadProgress = (TextView) this.findViewById(R.id.tv_load);
         tv_currentPosition = (TextView) this.findViewById(R.id.tv_time);
         
-        handler.postDelayed(runnable, 1000);
     }
     
     protected void onStart() {
@@ -68,7 +58,6 @@ public class PlayerActivity extends Activity implements OnClickListener {
             unbindService(mConnection);
             mBound = false;
         }
-        handler.removeCallbacks(runnable);
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
