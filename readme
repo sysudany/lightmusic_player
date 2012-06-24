@@ -1,0 +1,8 @@
+An android music player focused on light music.
+
+If you have questions you can contact chdany@qq.com, or leave a message to qq:365712542.
+
+Features:
+	1.  Wrapper of MediaPlayer api so you can download the music while listening.
+	2.  Fetching baidu music search result using regular expression
+	3.  playing the music in a background service
