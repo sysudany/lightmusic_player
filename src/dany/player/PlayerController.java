@@ -28,7 +28,7 @@ public class PlayerController {
 	/**
 	 * assume 96kbps*10secs/8bits per byte
 	 */
-	private static final int INTIAL_KB_BUFFER = 96 * 10 / 8;
+	private static final int INTIAL_BYTES = 1024*256;
 
 	// 构造方法的参数
 	private Context context;
@@ -40,8 +40,8 @@ public class PlayerController {
 	private MediaPlayer mediaPlayer1;
 	private MediaPlayer mediaPlayer2;
 	private MediaPlayer currentMediaPlayer;
-	private FileOutputStream cache1;
-	private FileOutputStream cache2;
+	private File cachefile1;
+	private File cachefile2;
 
 	// 刷新界面需要的信息
 	private int currentPosition = 0;
@@ -86,15 +86,8 @@ public class PlayerController {
 		mediaPlayer2 = new MediaPlayer();
 		mediaPlayer1.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		mediaPlayer2.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-		try {
-			cache1 = new FileOutputStream(new File(context.getCacheDir(),
-					musicName + "1.dat"));
-			cache2 = new FileOutputStream(new File(context.getCacheDir(),
-					musicName + "2.dat"));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		cachefile1 = new File(context.getCacheDir(),"1.dat");
+		cachefile2 = new File(context.getCacheDir(),"2.dat");
 	}
 
 	public void play() {
@@ -103,7 +96,8 @@ public class PlayerController {
 			isDownloading = true;
 		} else {
 			try {
-				startPlaying(mediaPlayer1, cache1.getFD());
+				FileInputStream inputStream1 = new FileInputStream(cachefile1);
+				startPlaying(mediaPlayer1, inputStream1.getFD());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -121,38 +115,34 @@ public class PlayerController {
 				int downloadContentLength = 0;
 
 				InputStream inputStream = connection.getInputStream();
+				FileOutputStream out1 = new FileOutputStream(cachefile1);
+				FileOutputStream out2 = new FileOutputStream(cachefile2);
 				int length = 0;
 				byte[] buffer = new byte[16384];
 				while ((length = inputStream.read(buffer)) > 0) {
-					cache1.write(buffer, 0, length);
-					cache2.write(buffer, 0, length);
+					out1.write(buffer, 0, length);
+					out2.write(buffer, 0, length);
 					downloadContentLength += length;
 					// 得到下载进度
 					downloadProgress = downloadContentLength * 100
 							/ contentLength;
 					if (currentMediaPlayer == null
-							&& downloadContentLength > INTIAL_KB_BUFFER) {
+							&& downloadContentLength > INTIAL_BYTES) {
 						currentMediaPlayer = mediaPlayer1;
-						currentMediaPlayer.setDataSource(cache1.getFD());
+						currentMediaPlayer.setDataSource(new FileInputStream(cachefile1).getFD());
 						currentMediaPlayer.prepare();
 						currentMediaPlayer.start();
 						// 得到估计音乐长度
-						estimateDuration = currentMediaPlayer.getDuration()
-								* contentLength / downloadProgress;
-					} else if (currentMediaPlayer.getDuration()
+//						estimateDuration = currentMediaPlayer.getDuration()
+//								* contentLength / downloadProgress;
+					} else if (currentMediaPlayer != null&&currentMediaPlayer.getDuration()
 							- currentMediaPlayer.getCurrentPosition() < 1000) {
 						switchMediaPlayer();
 					}
 				}
 				// 下载完成,将缓存中数据写到sdcard,删除缓存			
-				startPlaying(mediaPlayer1, cache1.getFD());
-				FileInputStream in =new FileInputStream(new File(context.getCacheDir(),musicName + "1.dat"));
-				FileOutputStream out = new FileOutputStream(new File(savePath+musicName+".mp3"));		
-				FileUtil.copyFile(in, out);
-				cache1.close();
-				cache2.close();
-				
-				
+				File sdcardFile = new File(savePath,musicName);
+				FileUtil.copyFile(cachefile1, sdcardFile);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -163,7 +153,7 @@ public class PlayerController {
 	/**
 	 * 准备完了立刻按当前进度播放
 	 */
-	private class PreparedListen implements OnPreparedListener {
+	private class PreparedListener implements OnPreparedListener {
 		@Override
 		public void onPrepared(MediaPlayer mp) {
 			mp.seekTo(currentPosition);
@@ -175,9 +165,9 @@ public class PlayerController {
 	 */
 	private void switchMediaPlayer() throws Exception {
 		if (currentMediaPlayer == mediaPlayer1) {
-			startPlaying(mediaPlayer2, cache2.getFD());
+			startPlaying(mediaPlayer2, new FileInputStream(cachefile2).getFD());
 		} else {
-			startPlaying(mediaPlayer1, cache1.getFD());
+			startPlaying(mediaPlayer1, new FileInputStream(cachefile1).getFD());
 		}
 	}
 
@@ -194,7 +184,7 @@ public class PlayerController {
 		currentMediaPlayer = mediaPlayer;
 		currentMediaPlayer.setDataSource(fd);
 		currentMediaPlayer.prepareAsync();
-		currentMediaPlayer.setOnPreparedListener(new PreparedListen());
+		currentMediaPlayer.setOnPreparedListener(new PreparedListener());
 	}
 
 	public void pause() {
