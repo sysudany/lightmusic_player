@@ -12,12 +12,7 @@ public class MailActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.main);
-
-
-		
-		
 	}
 
 	public void sendMail(View view) {

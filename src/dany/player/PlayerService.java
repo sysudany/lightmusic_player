@@ -47,6 +47,7 @@ public class PlayerService extends Service {
 		if (!player.isPlaying) {
 			Music music = new Music();
 			music.musicName = "Ìì±ßµÄ¾ìÁµ";
+//			music.url = "http://shiting.chaishouji.com:551/file2/390/389174.mp3";
 			music.url = "http://192.168.1.105:8080/1.mp3";
 			player.play(music);
 		}else{

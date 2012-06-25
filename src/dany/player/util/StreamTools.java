@@ -1,4 +1,4 @@
-package dany.player.bean;
+package dany.player.util;
 
 
 import java.io.BufferedReader;

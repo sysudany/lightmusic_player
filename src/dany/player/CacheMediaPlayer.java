@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -17,6 +18,16 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.util.Log;
 
+
+/**
+ * The main ideas of the following class is :
+ * when you first start the player with a music url
+ * there open two thread:
+ * one for downloading the file,the other for monitor the downloadprogress
+ * when downloaded size is enough,start a mediaplayer
+ * when mediaplayer almost ended,then transfer to another mediaplayer to play it 
+ * it may cause some suspend,i am trying to minimize it
+ */
 public class CacheMediaPlayer {
 	private Context context;
 	private File cacheFile;
@@ -62,7 +73,9 @@ public class CacheMediaPlayer {
 			if (music.url != null) {
 				try {
 					URL url = new URL(music.url);
-					URLConnection connection = url.openConnection();
+					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+					connection.setConnectTimeout(5000);
+					connection.setRequestMethod("GET");
 					InputStream inputStream = connection.getInputStream();
 					System.out.println(connection.getContentLength()
 							+ "---------------------------------");
@@ -128,7 +141,7 @@ public class CacheMediaPlayer {
 					}
 				} else if (currentMediaPlayer != null
 						&& currentMediaPlayer.getDuration()
-								- currentMediaPlayer.getCurrentPosition() < 500) {
+								- currentMediaPlayer.getCurrentPosition() < 200) {
 					lastMediaPlayer = currentMediaPlayer;
 					currentMediaPlayer = (currentMediaPlayer == mediaPlayer1 ? mediaPlayer2
 							: mediaPlayer1);

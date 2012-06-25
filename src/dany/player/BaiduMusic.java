@@ -11,11 +11,11 @@ import java.util.regex.Pattern;
 
 import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.Source;
-import dany.player.bean.StreamTools;
+import dany.player.util.StreamTools;
 
 public class BaiduMusic {
 	public static void main(String[] args) throws Exception {
-		String name = "";
+		String name = "Ìì±ßµÄ¾ìÁµ";
 		URL url = new URL("http://mp3.baidu.com/m?word=" + URLEncoder.encode(name, "GBK")
 				+ "&lm=-1&f=ms&tn=baidump3&ct=134217728&lf=&rn=");
 		URLConnection connection = url.openConnection();
