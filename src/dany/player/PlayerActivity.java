@@ -21,7 +21,7 @@ public class PlayerActivity extends Activity implements OnClickListener {
     PlayerService mService;
     boolean mBound = false;
 	
-    private Button bt_play;
+    private Button bt_start;
     
 	private TextView tv_loadProgress;
 	private TextView tv_currentPosition;
@@ -36,8 +36,8 @@ public class PlayerActivity extends Activity implements OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        bt_play = (Button) this.findViewById(R.id.play);
-        bt_play.setOnClickListener(this);
+        bt_start = (Button) this.findViewById(R.id.start);
+        bt_start.setOnClickListener(this);
         alphaAnimation = AnimationUtils.loadAnimation(this,R.anim.alpha); 
         
         tv_loadProgress = (TextView) this.findViewById(R.id.tv_load);
@@ -76,14 +76,14 @@ public class PlayerActivity extends Activity implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		if(v == bt_play){
-			if(v.getId()==R.id.play){
+		if(v == bt_start){
+			if(v.getId()==R.id.start){
 				v.setId(R.id.pause);
 				v.setBackgroundResource(R.drawable.pause_selector);
 				v.startAnimation(alphaAnimation);
-				mService.play();
+				mService.start();
 			}else{
-				v.setId(R.id.play);
+				v.setId(R.id.start);
 				v.setBackgroundResource(R.drawable.play_selector);
 				v.startAnimation(alphaAnimation);
 				mService.pause();
