@@ -29,7 +29,7 @@
         android:textSize="25sp" />
 
     <Button
-        android:id="@id/start"
+        android:id="@+id/bt_control"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -39,7 +39,7 @@
         />
 
     <TextView
-        android:id="@+id/tv_load"
+        android:id="@+id/tv_currentPosition"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -49,7 +49,7 @@
         android:text="TextView" />
 
     <TextView
-        android:id="@+id/tv_time"
+        android:id="@+id/tv_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="30dp"

@@ -1,13 +1,16 @@
 package dany.player.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.util.Log;
+import dany.player.bean.Music;
+import dany.player.bean.SongInfo;
 
 public class FileUtil {
 
@@ -47,6 +50,30 @@ public class FileUtil {
 							+ oldLocation.getPath() + " to "
 							+ newLocation.getPath());
 		}
+	}
+	
+	
+	public static final List<Music> getMusicsFromDir(File directory) throws Exception{
+		List<Music> musicList = new ArrayList<Music>();
+		File[] files = directory.listFiles();
+		RandomAccessFile ran;
+		byte[] buffer = new byte[128];
+		SongInfo info; 
+		for(File file :files){
+			if(file.getName().endsWith(".mp3")){
+				ran = new RandomAccessFile(file, "r");
+				ran.seek(ran.length() - 128);
+				ran.read(buffer);
+				info = new SongInfo(buffer);
+				Music music = new Music();
+				music.artist = info.getArtist();
+				music.musicName = info.getSongName();
+				music.localPath = file.getAbsolutePath();
+				System.out.println(music);
+				musicList.add(music);
+			}
+		}
+		return musicList;
 	}
 
 }

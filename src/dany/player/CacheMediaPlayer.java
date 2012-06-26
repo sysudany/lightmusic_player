@@ -76,6 +76,14 @@ public class CacheMediaPlayer {
 					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 					connection.setConnectTimeout(5000);
 					connection.setRequestMethod("GET");
+					//Connection:keep-alive
+					connection.setRequestProperty("Connection", "keep-alive");
+					connection.setRequestProperty("User-Agent","Mozilla/5.0 ( compatible ) ");
+					connection.setRequestProperty("Accept","*/*");
+				    connection.setDoInput(true);
+		            connection.setDoOutput(true);
+					connection.connect();
+					System.out.println(connection.getResponseCode());
 					InputStream inputStream = connection.getInputStream();
 					System.out.println(connection.getContentLength()
 							+ "---------------------------------");
