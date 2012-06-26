@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/bg_01" >
+    android:background="@drawable/bg_10"
+    android:id="@+id/rv_bg" >
 
     <Button
         android:id="@+id/bt_control"
@@ -15,7 +16,7 @@
         android:background="@drawable/play_selector" />
 
     <TextView 
-                android:layout_width="wrap_content"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/test"
         android:text="dadfadfsdfdsfsdf"
@@ -35,7 +36,7 @@
         android:padding="5dip"
         android:singleLine="true"
         android:text="仙境-班得瑞"
-        android:textColor="#AFEEEE"
+        android:textColor="#4169e1"
         android:textSize="20sp" />
 
     <LinearLayout

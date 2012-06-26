@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -21,6 +22,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import dany.player.PlayerService.PlayerBinder;
@@ -32,9 +34,9 @@ public class PlayerActivity extends Activity implements OnClickListener {
 	public static final String UPDATE_UI = "dany.player.UPDATE_UI";
 	PlayerService mService;
 	boolean mBound = false;
-	boolean mRegistered ;
 	BroadcastReceiver updateReceiver;
-
+	AudioManager audioManager;
+	private int maxVolum,currentVolum;
 
 	private Button bt_control;
 	private TextView tv_title;
@@ -42,42 +44,59 @@ public class PlayerActivity extends Activity implements OnClickListener {
 	private WmtRatingBar mVoluemRatingBar;
 	private LinearLayout ll_vol;
 	private TextView test;
-
+	private RelativeLayout rv_bg;
+	
 	private Handler handler = new Handler();
-
+	private int[] bgPics= {R.drawable.bg_01,R.drawable.bg_02,R.drawable.bg_03,R.drawable.bg_04,R.drawable.bg_05,
+						R.drawable.bg_06,R.drawable.bg_07,R.drawable.bg_08,R.drawable.bg_09,R.drawable.bg_10,};
+	private int bgPicIndex = 0;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		initViews();
+		
+		Intent intent = new Intent(this, PlayerService.class);
+		getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+		
+		audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+		maxVolum = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+		currentVolum = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+		mVoluemRatingBar.setRating(15*currentVolum/maxVolum);
+		test = (TextView) findViewById(R.id.test);
+		mVoluemRatingBar.setOnRatingBarChange(new OnRatingBarChanging() {
+			@Override
+			public void onRatingChanging(float f) {
+				test.setText("Volume=" + f);
+				audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) (f*maxVolum/15), 0);
+			}
+		});
+	}
 
+	private void initViews() {
 		bt_control = (Button) this.findViewById(R.id.bt_control);
 		bt_control.setOnClickListener(this);
 		alphaAnimation = AnimationUtils.loadAnimation(this, R.anim.alpha);
 		tv_title = (TextView) this.findViewById(R.id.tv_title);
 		ll_vol = (LinearLayout) this.findViewById(R.id.ll_vol);
-		
-		
-		
-		test = (TextView) findViewById(R.id.test);
+		rv_bg = (RelativeLayout) this.findViewById(R.id.rv_bg);
 		mVoluemRatingBar = (WmtRatingBar) findViewById(R.id.volume_ratingBar);
-		mVoluemRatingBar.setOnRatingBarChange(new OnRatingBarChanging() {
-			@Override
-			public void onRatingChanging(float f) {
-				test.setText("Volume=" + f);
-			}
-		});
 	}
 
 	protected void onStart() {
 		super.onStart();
-		Intent intent = new Intent(this, PlayerService.class);
-		getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
 
 		updateReceiver = new UpdateReceiver();
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(UPDATE_UI);
 		registerReceiver(updateReceiver, filter);
-		mRegistered = true;
+	}
+
+	@Override
+	protected void onStop() {
+		unregisterReceiver(updateReceiver);
+		super.onStop();
 	}
 
 	@Override
@@ -87,9 +106,6 @@ public class PlayerActivity extends Activity implements OnClickListener {
 			getApplicationContext().unbindService(mConnection);
 			mBound = false;
 		}
-		if(mRegistered)
-			unregisterReceiver(updateReceiver);
-		mRegistered = false;
 	}
 
 	private class UpdateReceiver extends BroadcastReceiver {
@@ -100,6 +116,8 @@ public class PlayerActivity extends Activity implements OnClickListener {
 				getApplicationContext().unbindService(mConnection);
 			} else {
 				tv_title.setText(mService.getMusicName());
+				bgPicIndex ++;
+				rv_bg.setBackgroundResource(bgPics[bgPicIndex%10]);
 			}
 		}
 	}
@@ -110,6 +128,7 @@ public class PlayerActivity extends Activity implements OnClickListener {
 			PlayerBinder binder = (PlayerBinder) service;
 			mService = binder.getService();
 			mBound = true;
+			tv_title.setText(mService.getMusicName());
 		}
 
 		@Override
@@ -118,32 +137,33 @@ public class PlayerActivity extends Activity implements OnClickListener {
 		}
 	};
 
-	//创建菜单
+	// 创建菜单
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.menu, menu);
-	    return true;
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu, menu);
+		return true;
 	}
-	
-	//菜单的点击事件
+
+	// 菜单的点击事件
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	    // Handle item selection
-	    switch (item.getItemId()) {
-	        case R.id.settings:
-	            
-	            return true;
-	        case R.id.exit:
-	            onDestroy();
-	            finish();
-	            return true;
-	        default:
-	            return super.onOptionsItemSelected(item);
-	    }
+		// Handle item selection
+		switch (item.getItemId()) {
+		case R.id.settings:
+
+			return true;
+		case R.id.exit:
+			onDestroy();
+			finish();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
-	
+
 	private boolean isPlaying;
+
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
@@ -165,7 +185,7 @@ public class PlayerActivity extends Activity implements OnClickListener {
 		}
 	}
 
-	//复写返回键
+	// 复写返回键
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -175,12 +195,21 @@ public class PlayerActivity extends Activity implements OnClickListener {
 			this.startActivity(mHomeIntent);
 			overridePendingTransition(R.anim.scale_in, R.anim.scale_out);
 			return true;
+		}else if(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN){
+			mVoluemRatingBar.setRating(mVoluemRatingBar.getRating()-1);
+			audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) (maxVolum*mVoluemRatingBar.getRating()/15), 0);
+			return true;
+		}else if(keyCode == KeyEvent.KEYCODE_VOLUME_UP){
+			mVoluemRatingBar.setRating(mVoluemRatingBar.getRating()+1);
+			audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) (maxVolum*mVoluemRatingBar.getRating()/15), 0);
+			return true;
 		}
 		return super.onKeyDown(keyCode, event);
 	}
-	
-	//实现音量控制板的显示和消失
+
+	// 实现音量控制板的显示和消失
 	private long timeWhenYouTouch = 0;
+
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		switch (event.getAction()) {
@@ -196,7 +225,7 @@ public class PlayerActivity extends Activity implements OnClickListener {
 								ll_vol.setVisibility(View.INVISIBLE);
 								timeWhenYouTouch = 0;
 							}
-						}, 5000);
+						}, 10000);
 					}
 				}
 				timeWhenYouTouch = System.currentTimeMillis();

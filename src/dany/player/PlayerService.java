@@ -141,9 +141,6 @@ public class PlayerService extends Service {
 
 	public void start() {
 		mPlayer.start();
-		Intent intent = new Intent();
-		intent.setAction(PlayerActivity.UPDATE_UI);
-		sendBroadcast(intent);
 	}
 
 	// 得到总时长
