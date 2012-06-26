@@ -1,10 +1,13 @@
 Dany is developing an android music player focused on light music.
 
+Note thanyou should put some mp3 music files in your music folder of sdcard, then the program run well.
+
 If you have any advice you can contact me by chdany@qq.com, or leave a message to qq:365712542.
 
 Features:
 	1.  Wrapper of MediaPlayer api so you can download the music while listening.
 	2.  Fetching baidu music search result using regular expression
+	    //has been failed because baidu music update its website
 	3.  playing the music in a background service
 	
 	
