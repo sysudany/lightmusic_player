@@ -43,7 +43,6 @@ public class PlayerActivity extends Activity implements OnClickListener {
 	Animation alphaAnimation;
 	private WmtRatingBar mVoluemRatingBar;
 	private LinearLayout ll_vol;
-	private TextView test;
 	private RelativeLayout rv_bg;
 	
 	private Handler handler = new Handler();
@@ -63,11 +62,9 @@ public class PlayerActivity extends Activity implements OnClickListener {
 		maxVolum = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 		currentVolum = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 		mVoluemRatingBar.setRating(15*currentVolum/maxVolum);
-		test = (TextView) findViewById(R.id.test);
 		mVoluemRatingBar.setOnRatingBarChange(new OnRatingBarChanging() {
 			@Override
 			public void onRatingChanging(float f) {
-				test.setText("Volume=" + f);
 				handler.removeCallbacks(dismissRunnable);
 				audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) (f*maxVolum/15), 0);
 				handler.postDelayed(dismissRunnable, 5000);
