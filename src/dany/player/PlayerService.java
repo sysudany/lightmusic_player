@@ -2,6 +2,7 @@ package dany.player;
 
 import java.io.File;
 import java.util.List;
+import java.util.Random;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -183,6 +184,14 @@ public class PlayerService extends Service {
 			musicIndex = -1;
 		}
 		musicIndex++;
+		Random random = new Random();
+		Music temp = null;
+		//随机循环播放的逻辑实现
+		int next = musicIndex+random.nextInt(musicList.size()-musicIndex);
+		temp = musicList.get(next);
+		musicList.set(next, musicList.get(musicIndex));
+		musicList.set(musicIndex, temp);
+		
 		try {
 			mPlayer.reset();
 			mPlayer.setDataSource(musicList.get(musicIndex).localPath);

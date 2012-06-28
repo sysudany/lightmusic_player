@@ -68,7 +68,9 @@ public class PlayerActivity extends Activity implements OnClickListener {
 			@Override
 			public void onRatingChanging(float f) {
 				test.setText("Volume=" + f);
+				handler.removeCallbacks(dismissRunnable);
 				audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) (f*maxVolum/15), 0);
+				handler.postDelayed(dismissRunnable, 5000);
 			}
 		});
 	}
@@ -196,12 +198,18 @@ public class PlayerActivity extends Activity implements OnClickListener {
 			overridePendingTransition(R.anim.scale_in, R.anim.scale_out);
 			return true;
 		}else if(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN){
+			ll_vol.setVisibility(View.VISIBLE);
+			handler.removeCallbacks(dismissRunnable);
 			mVoluemRatingBar.setRating(mVoluemRatingBar.getRating()-1);
 			audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) (maxVolum*mVoluemRatingBar.getRating()/15), 0);
+			handler.postDelayed(dismissRunnable, 5000);
 			return true;
 		}else if(keyCode == KeyEvent.KEYCODE_VOLUME_UP){
+			ll_vol.setVisibility(View.VISIBLE);
+			handler.removeCallbacks(dismissRunnable);
 			mVoluemRatingBar.setRating(mVoluemRatingBar.getRating()+1);
 			audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) (maxVolum*mVoluemRatingBar.getRating()/15), 0);
+			handler.postDelayed(dismissRunnable, 5000);
 			return true;
 		}
 		return super.onKeyDown(keyCode, event);
@@ -209,7 +217,16 @@ public class PlayerActivity extends Activity implements OnClickListener {
 
 	// 实现音量控制板的显示和消失
 	private long timeWhenYouTouch = 0;
-
+	private DismissRunnable dismissRunnable = new DismissRunnable();
+	class DismissRunnable implements Runnable{
+		@Override
+		public void run() {
+			ll_vol.setVisibility(View.INVISIBLE);
+			timeWhenYouTouch = 0;
+		}
+		
+	}
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		switch (event.getAction()) {
@@ -219,13 +236,7 @@ public class PlayerActivity extends Activity implements OnClickListener {
 					long interval = System.currentTimeMillis() - timeWhenYouTouch;
 					if (interval < 1000) {
 						ll_vol.setVisibility(View.VISIBLE);
-						handler.postDelayed(new Runnable() {
-							@Override
-							public void run() {
-								ll_vol.setVisibility(View.INVISIBLE);
-								timeWhenYouTouch = 0;
-							}
-						}, 10000);
+						handler.postDelayed(dismissRunnable, 5000);
 					}
 				}
 				timeWhenYouTouch = System.currentTimeMillis();
