@@ -1,6 +1,7 @@
 package dany.player;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -11,6 +12,7 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,10 +20,12 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -144,13 +148,15 @@ public class PlayerActivity extends Activity implements OnClickListener {
 		return true;
 	}
 
+	
+	
 	// 菜单的点击事件
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
 		switch (item.getItemId()) {
 		case R.id.settings:
-
+			showSettingDialog();
 			return true;
 		case R.id.exit:
 			onDestroy();
@@ -159,6 +165,12 @@ public class PlayerActivity extends Activity implements OnClickListener {
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	private void showSettingDialog() {
+		 Dialog dialog = new Dialog(this, R.style.MyDialog);
+		 dialog.setContentView(R.layout.settings);
+		 dialog.show();
 	}
 
 	private boolean isPlaying;
