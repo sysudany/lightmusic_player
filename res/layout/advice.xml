@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="270dip"
+    android:layout_height="wrap_content"
+    android:background="@drawable/setting_bg"
+    android:gravity="center_vertical|center_horizontal"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:paddingBottom="10dip"
+        android:paddingTop="10dip"
+        android:text="联系我们"
+        android:textColor="#888888"
+        android:textSize="33sp" />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:layout_marginTop="5dip"
+        android:background="#bbbbbb" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal" >
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="160dip"
+            android:background="@drawable/et_selector"
+			android:hint="请输入您的建议..."
+			android:gravity="top|left"
+            android:paddingBottom="3dip"
+            android:id="@+id/et_advice"
+            android:numeric="integer"/>
+
+
+    </LinearLayout>
+
+    
+
+    <LinearLayout
+        android:layout_width="250dip"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" 
+        android:gravity="center_horizontal"
+        android:layout_marginTop="20dip"
+        android:layout_marginBottom="10dip">
+
+        <Button
+            android:padding="8dip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="发送"
+            android:id="@+id/bt_advice_send"
+            android:textSize="21sp"
+            android:background="@drawable/bt_dialog_selector"
+            android:textColor="#888888" />
+        <Button
+            android:padding="8dip"
+            android:layout_width="wrap_content"
+            android:textSize="21sp"
+            android:layout_height="wrap_content"
+            android:text="取消"
+            android:id="@+id/bt_advice_quit"
+            android:layout_marginLeft="35dip"
+            android:background="@drawable/bt_dialog_selector"
+            android:textColor="#888888" />
+
+
+    </LinearLayout>
+
+</LinearLayout>

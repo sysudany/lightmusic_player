@@ -7,8 +7,6 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import android.util.Base64;
-
 /**
  * 通过socket向smtp协议服务器发送邮件
  * 
@@ -20,7 +18,7 @@ public class SocketMail {
 	public String from;
 	public String to;
 	public String content;
-	public String lineFeet = "\r\n";
+	String lineFeet = "\r\n";
 	private int port = 25;
 	Socket client;
 	BufferedReader in;
@@ -117,12 +115,12 @@ public class SocketMail {
 		if (!auth.startsWith("334")) {
 			return false;
 		}
-		String user = sendCommand(new String(Base64.encode("for__test".getBytes(), Base64.DEFAULT))
+		String user = sendCommand(new String(Base64.encode("for__test".getBytes()))
 				+ lineFeet);
 		if (!user.startsWith("334")) {
 			return false;
 		}
-		String pass = sendCommand(new String(Base64.encode("chdany".getBytes(), Base64.DEFAULT))
+		String pass = sendCommand(new String(Base64.encode("chdany".getBytes()))
 				+ lineFeet);
 		if (!pass.startsWith("235")) {
 			return false;
