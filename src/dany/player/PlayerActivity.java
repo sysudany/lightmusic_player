@@ -8,11 +8,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,12 +21,11 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.WindowManager.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,20 +34,26 @@ import dany.player.view.WmtRatingBar;
 import dany.player.view.WmtRatingBar.OnRatingBarChanging;
 
 public class PlayerActivity extends Activity implements OnClickListener {
-
+	//实际情况可以加上某种权限才能调用
 	public static final String UPDATE_UI = "dany.player.UPDATE_UI";
-	PlayerService mService;
+	public static final String EXIT = "dany.player.EXIT";
+	private PlayerService mService;
 	boolean mBound = false;
-	BroadcastReceiver updateReceiver;
-	AudioManager audioManager;
+	private BroadcastReceiver updateReceiver;
+	private AudioManager audioManager;
+	SharedPreferences sharedPreferences;
+
 	private int maxVolum,currentVolum;
 
 	private Button bt_control;
+	//测试用按钮
+	private Button bt_next;
 	private TextView tv_title;
-	Animation alphaAnimation;
+	private Animation alphaAnimation;
 	private WmtRatingBar mVoluemRatingBar;
 	private LinearLayout ll_vol;
 	private RelativeLayout rv_bg;
+	
 	
 	private Handler handler = new Handler();
 	private int[] bgPics= {R.drawable.bg_01,R.drawable.bg_02,R.drawable.bg_03,R.drawable.bg_04,R.drawable.bg_05,
@@ -61,6 +67,10 @@ public class PlayerActivity extends Activity implements OnClickListener {
 		
 		Intent intent = new Intent(this, PlayerService.class);
 		getApplicationContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+		sharedPreferences = getSharedPreferences("config", 0);
+		Editor editor = sharedPreferences.edit();
+		editor.putInt("num_exit", Integer.MAX_VALUE);
+		editor.commit();
 		
 		audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 		maxVolum = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
@@ -78,6 +88,15 @@ public class PlayerActivity extends Activity implements OnClickListener {
 
 	private void initViews() {
 		bt_control = (Button) this.findViewById(R.id.bt_control);
+		//测试用按钮	
+		bt_next = (Button) this.findViewById(R.id.bt_next);
+		bt_next.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				mService.next();
+			}
+		});
 		bt_control.setOnClickListener(this);
 		alphaAnimation = AnimationUtils.loadAnimation(this, R.anim.alpha);
 		tv_title = (TextView) this.findViewById(R.id.tv_title);
@@ -88,11 +107,10 @@ public class PlayerActivity extends Activity implements OnClickListener {
 
 	protected void onStart() {
 		super.onStart();
-
-
 		updateReceiver = new UpdateReceiver();
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(UPDATE_UI);
+		filter.addAction(EXIT);
 		registerReceiver(updateReceiver, filter);
 	}
 
@@ -111,9 +129,16 @@ public class PlayerActivity extends Activity implements OnClickListener {
 		}
 	}
 
+	
+	//收听服务的广播
 	private class UpdateReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			if(intent.getAction().equals(EXIT)){
+				System.out.println("exit");
+				finish();
+				return;
+			}
 			if (intent.getBooleanExtra(PlayerService.ERROR, false)) {
 				Toast.makeText(PlayerActivity.this, "没有列表", 1).show();
 				getApplicationContext().unbindService(mConnection);
@@ -124,7 +149,8 @@ public class PlayerActivity extends Activity implements OnClickListener {
 			}
 		}
 	}
-
+	
+	//服务连接
 	private ServiceConnection mConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName className, IBinder service) {
@@ -159,7 +185,6 @@ public class PlayerActivity extends Activity implements OnClickListener {
 			showSettingDialog();
 			return true;
 		case R.id.exit:
-			onDestroy();
 			finish();
 			return true;
 		default:
@@ -167,14 +192,63 @@ public class PlayerActivity extends Activity implements OnClickListener {
 		}
 	}
 
+	//处理对话框逻辑
+	private Dialog dialog;
+	private View dialogView;
 	private void showSettingDialog() {
-		 Dialog dialog = new Dialog(this, R.style.MyDialog);
-		 dialog.setContentView(R.layout.settings);
+		 dialog = new Dialog(this, R.style.MyDialog);	 
+		 dialogView = View.inflate(this, R.layout.settings, null);
+		 dialog.setContentView(dialogView);
 		 dialog.show();
+		 initDialogControl();
 	}
 
-	private boolean isPlaying;
+	private EditText et;
+	private void initDialogControl() {
+		et = (EditText) dialogView.findViewById(R.id.et_num_exit);
+		Button bt_num_exit_3 = (Button) dialogView.findViewById(R.id.bt_num_exit_3);
+		Button bt_num_exit_5 = (Button) dialogView.findViewById(R.id.bt_num_exit_5);
+		Button bt_num_exit_10 = (Button) dialogView.findViewById(R.id.bt_num_exit_10);
+		Button bt_num_exit_20 = (Button) dialogView.findViewById(R.id.bt_num_exit_20);
+		Button bt_confirm = (Button) dialogView.findViewById(R.id.bt_dialog_confirm);
+		Button bt_quit = (Button) dialogView.findViewById(R.id.bt_dialog_quit);
+		OnClickListener listener = new DialogOnlickListener();
+		bt_num_exit_3.setOnClickListener(listener);
+		bt_num_exit_5.setOnClickListener(listener);
+		bt_num_exit_10.setOnClickListener(listener);
+		bt_num_exit_20.setOnClickListener(listener);
+		bt_confirm.setOnClickListener(listener);
+		bt_quit.setOnClickListener(listener);
+	}
 
+	private class DialogOnlickListener implements OnClickListener{
+		@Override
+		public void onClick(View v) {
+			switch (v.getId()) {
+			case R.id.bt_dialog_confirm:
+				Editor editor = sharedPreferences.edit();
+				int num_exit  = Integer.parseInt(et.getText().toString());
+				editor.putInt("num_exit",num_exit );
+				editor.commit();
+				et = null;
+				Toast.makeText(PlayerActivity.this, "保存成功，将在"+num_exit+"首歌后退出程序", 1).show();
+				dialog.dismiss();
+				break;
+			case R.id.bt_dialog_quit:
+				et = null;
+				dialog.dismiss();
+				break;
+
+			default:
+				Button button = (Button) v;
+				et.setText(button.getText().toString().trim());
+				break;
+			}
+		}
+	}
+	
+	//播放控制
+	private boolean isPlaying;
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {

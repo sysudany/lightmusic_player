@@ -12,6 +12,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Binder;
@@ -35,7 +37,9 @@ public class PlayerService extends Service {
 
 	private NotificationManager notificationManager;
 	private Notification notification;
-	
+
+	private SharedPreferences sharedPreferences;
+
 	private class PhoneComingReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -43,7 +47,8 @@ public class PlayerService extends Service {
 				pause();
 			} else {
 				// 如果是来电
-				TelephonyManager tm = (TelephonyManager) context.getSystemService(Service.TELEPHONY_SERVICE);
+				TelephonyManager tm = (TelephonyManager) context
+						.getSystemService(Service.TELEPHONY_SERVICE);
 				switch (tm.getCallState()) {
 				case TelephonyManager.CALL_STATE_RINGING:
 					pause();
@@ -64,6 +69,7 @@ public class PlayerService extends Service {
 		initReceiver();
 		initMediaPlayer();
 		initNotification();
+		sharedPreferences = getSharedPreferences("config", 0);
 	}
 
 	private void initReceiver() {
@@ -76,7 +82,8 @@ public class PlayerService extends Service {
 
 	private void initMediaPlayer() {
 		mPlayer = new MediaPlayer();
-		File directory = new File(Environment.getExternalStorageDirectory(), "music");
+		File directory = new File(Environment.getExternalStorageDirectory(),
+				"music");
 		try {
 			musicList = FileUtil.getMusicsFromDir(directory);
 			mPlayer.reset();
@@ -92,17 +99,21 @@ public class PlayerService extends Service {
 			stopSelf(1);
 		}
 	}
-	
-	private void initNotification(){
+
+	private void initNotification() {
 		notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		notification = new Notification(R.drawable.icon,getMusicName(),System.currentTimeMillis());
+		notification = new Notification(R.drawable.icon, getMusicName(),
+				System.currentTimeMillis());
 		notification.flags = Notification.FLAG_INSISTENT;
-		Intent intent = new Intent(this,PlayerActivity.class);
-		PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-		notification.setLatestEventInfo(getApplicationContext(), "轻音乐播放器", getMusicName(), contentIntent);
+		Intent intent = new Intent(this, PlayerActivity.class);
+		PendingIntent contentIntent = PendingIntent.getActivity(
+				getApplicationContext(), 0, intent,
+				Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+		notification.setLatestEventInfo(getApplicationContext(), "轻音乐播放器",
+				getMusicName(), contentIntent);
 		notificationManager.notify(1, notification);
 	}
-	
+
 	private class CompletionListener implements OnCompletionListener {
 		@Override
 		public void onCompletion(MediaPlayer mp) {
@@ -129,7 +140,7 @@ public class PlayerService extends Service {
 		notificationManager.cancel(1);
 		return super.onUnbind(intent);
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		unregisterReceiver(receiver);
@@ -183,15 +194,30 @@ public class PlayerService extends Service {
 		if (musicIndex == musicList.size() - 1) {
 			musicIndex = -1;
 		}
+
+		Editor editor = sharedPreferences.edit();
+		int num_exit = sharedPreferences.getInt("num_exit", Integer.MAX_VALUE);
+		num_exit--;
+		if (num_exit < 0) {
+			editor.putInt("num_exit", Integer.MAX_VALUE);
+			editor.commit();
+			Intent intent2 = new Intent();
+			intent2.setAction(PlayerActivity.EXIT);
+			sendBroadcast(intent2);
+			return;
+		} else {
+			editor.putInt("num_exit", num_exit);
+			editor.commit();
+		}
 		musicIndex++;
 		Random random = new Random();
 		Music temp = null;
-		//随机循环播放的逻辑实现
-		int next = musicIndex+random.nextInt(musicList.size()-musicIndex);
+		// 随机循环播放的逻辑实现
+		int next = musicIndex + random.nextInt(musicList.size() - musicIndex);
 		temp = musicList.get(next);
 		musicList.set(next, musicList.get(musicIndex));
 		musicList.set(musicIndex, temp);
-		
+
 		try {
 			mPlayer.reset();
 			mPlayer.setDataSource(musicList.get(musicIndex).localPath);

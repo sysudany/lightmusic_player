@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="250dip"
+    android:layout_height="wrap_content"
+    android:background="@drawable/setting_bg"
+    android:gravity="center_vertical|center_horizontal"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:paddingBottom="10dip"
+        android:paddingTop="10dip"
+        android:text="退出设置"
+        android:textColor="#888888"
+        android:textSize="33sp" />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:layout_marginTop="5dip"
+        android:background="#bbbbbb" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dip"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal" >
+
+        <EditText
+            android:layout_width="45dip"
+            android:layout_height="wrap_content"
+            android:background="@drawable/et_selector"
+            android:gravity="center_horizontal"
+            android:paddingBottom="3dip"
+            android:paddingTop="3dip"
+            android:id="@+id/et_num_exit"
+            android:numeric="integer"
+            android:text="3" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" 首歌之后退出"
+            android:textColor="#888888"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:paddingTop="10dip" >
+
+        <Button
+            android:id="@+id/bt_num_exit_3"
+            android:layout_width="31dip"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dip"
+            android:background="@drawable/bt_selector"
+            android:padding="5dip"
+            android:text="3" />
+
+        <Button
+             android:id="@+id/bt_num_exit_5"
+            android:layout_width="31dip"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dip"
+            android:background="@drawable/bt_selector"
+            android:padding="5dip"
+            android:text=" 5 " />
+
+        <Button
+             android:id="@+id/bt_num_exit_10"
+            android:layout_width="35dip"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dip"
+            android:background="@drawable/bt_selector"
+            android:padding="5dip"
+            android:text=" 10 " />
+
+        <Button
+            android:id="@+id/bt_num_exit_20"
+            android:layout_width="35dip"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dip"
+            android:background="@drawable/bt_selector"
+            android:padding="5dip"
+            android:text=" 20 " />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="250dip"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" 
+        android:gravity="center_horizontal"
+        android:layout_marginTop="20dip"
+        android:layout_marginBottom="10dip">
+
+        <Button
+            android:padding="8dip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="确定"
+            android:id="@+id/bt_dialog_confirm"
+            android:textSize="21sp"
+            android:background="@drawable/bt_dialog_selector"
+            android:textColor="#888888" />
+        <Button
+            android:padding="8dip"
+            android:layout_width="wrap_content"
+            android:textSize="21sp"
+            android:layout_height="wrap_content"
+            android:text="取消"
+            android:id="@+id/bt_dialog_quit"
+            android:layout_marginLeft="35dip"
+            android:background="@drawable/bt_dialog_selector"
+            android:textColor="#888888" />
+
+
+    </LinearLayout>
+
+</LinearLayout>
